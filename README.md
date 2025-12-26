@@ -18,17 +18,35 @@ The system authenticates users via a keypad, stores credentials in EEPROM, contr
 
 ## 🧠 FSM Design
 
-This project’s behavior is structured around a Finite State Machine with the following states:
+The system behavior is structured around a Finite State Machine with the following states:
 
 | State | Purpose |
-|-------|---------|
+|------|--------|
 | **IDLE** | Waiting for user input |
 | **INPUT** | Collecting keypad characters |
-| **VERIFY** | Comparing input with stored password |
+| **VERIFY** | Comparing entered PIN with stored password |
 | **ERROR** | Handling incorrect PIN attempts |
-| **LOCKED_OUT** | Temporary lockout after failed attempts |
+| **LOCKED_OUT** | Temporary lockout after repeated failures |
 
-Using an FSM ensures predictable, deterministic control flow and makes it easier to reason about system behavior.
+FSM-based design ensures deterministic control flow, improved reliability, and easier debugging compared to ad-hoc logic.
+
+---
+
+## ⌨️ Keypad Controls
+
+The keypad includes two special control keys that influence system behavior:
+
+### `#` (Enter / Confirm)
+- Submits the entered PIN for verification
+- If pressed without entering any digits, the system prompts the user to enter a PIN
+- Transitions the FSM from **INPUT → VERIFY**
+
+### `*` (Clear / Reset)
+- Clears the current PIN input buffer
+- Cancels the current input operation
+- Returns the system to the **IDLE** state
+
+These control keys improve usability and prevent accidental or partial PIN verification.
 
 ---
 
@@ -49,30 +67,31 @@ Using an FSM ensures predictable, deterministic control flow and makes it easier
 ---
 
 ## 🔑 Default Access Credentials
+- **Default PIN:** `1234`
+- The PIN is stored in **EEPROM**, allowing persistence across power cycles
+- The default PIN will be written only during initial EEPROM initialization if you use the initEEPROM() in the code and not comment it out.
 
-- **Default PIN:** `1234`  
-- The PIN is stored in **EEPROM**, allowing it to persist across power cycles.  
-- The default PIN is only written during initial EEPROM initialization and can be changed in future enhancements only if you use and not comment out the initEEPROM() in the code.
-
-> ⚠️ **Note:** This default credential is provided for demonstration and testing purposes.
+> ⚠️ **Note:** Default credentials are provided strictly for demonstration and testing purposes.
 
 ---
 
 ## 🧪 Simulation & Testing
 
-This project was developed and tested using **Tinkercad Circuits**:
+This project was developed and tested using **Tinkercad Circuits**.
 
-🔗 **Tinkercad Simulation (click to open):**  
+🔗 **Tinkercad Simulation:**  
 https://www.tinkercad.com/things/4qVpwspqtIz-dazzling-vihelmo
 
-You can run the simulation there to observe the system behavior:
-- Enter the correct PIN (`1234`) ➜ door unlocks  
-- Enter the wrong PIN repeatedly ➜ lockout state engages  
+### Expected Behavior
+- Enter correct PIN (`1234`) → door unlocks
+- Enter incorrect PIN repeatedly → system enters lockout state
+- During lockout → keypad input is ignored until timeout expires
 
 ---
 
 ## 📸 Project Screenshots
 
+*(Screenshots from the Tinkercad simulation — stored in the `images/` directory)*
 
 ### Circuit Overview
 ![Circuit Overview](images/circuit_overview.png)
@@ -86,10 +105,10 @@ You can run the simulation there to observe the system behavior:
 ---
 
 ## 🚀 Future Improvements
-- Password change mode  
-- EEPROM-backed lockout persistence  
-- Interrupt-driven keypad input  
-- Alarm / buzzer integration  
+- Password change mode
+- EEPROM-backed lockout persistence
+- Interrupt-driven keypad input
+- Alarm / buzzer integration
 
 ---
 
